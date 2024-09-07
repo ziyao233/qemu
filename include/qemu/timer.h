@@ -816,13 +816,16 @@ static inline int64_t get_max_clock_jump(void)
  * Low level clock functions
  */
 
+extern int64_t qemu_start_realtime_stamp;
+extern int64_t qemu_start_clock_stamp;
 /* get host real time in nanosecond */
 static inline int64_t get_clock_realtime(void)
 {
     struct timeval tv;
 
     gettimeofday(&tv, NULL);
-    return tv.tv_sec * 1000000000LL + (tv.tv_usec * 1000);
+    int64_t r = tv.tv_sec * 1000000000LL + (tv.tv_usec * 1000);
+    return qemu_start_realtime_stamp + ((r - qemu_start_realtime_stamp) / 10);
 }
 
 extern int64_t clock_start;
@@ -849,7 +852,8 @@ static inline int64_t get_clock(void)
     if (use_rt_clock) {
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
-        return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+	int64_t r = ts.tv_sec * 1000000000LL + ts.tv_nsec;
+	return qemu_start_clock_stamp + ((r - qemu_start_clock_stamp) / 10);
     } else {
         /* XXX: using gettimeofday leads to problems if the date
            changes, so it should be avoided. */

@@ -29,6 +29,7 @@ struct QEMUBH {
 QEMUTimerListGroup main_loop_tlg;
 
 int64_t ptimer_test_time_ns;
+int64_t qemu_start_realtime_stamp, qemu_start_clock_stamp;
 
 /* under qtest_enabled(), will not artificially limit period - see hw/core/ptimer.c. */
 int use_icount;

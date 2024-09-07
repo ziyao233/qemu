@@ -650,9 +650,18 @@ static void qemu_virtual_clock_set_ns(int64_t time)
     return cpus_set_virtual_clock(time);
 }
 
+int64_t qemu_start_realtime_stamp, qemu_start_clock_stamp;
 void init_clocks(QEMUTimerListNotifyCB *notify_cb)
 {
     QEMUClockType type;
+    struct timeval tv;
+    struct timespec ts;
+    gettimeofday(&tv, NULL);
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+
+    qemu_start_realtime_stamp = tv.tv_sec * 1000000000LL + (tv.tv_usec * 1000);
+    qemu_start_clock_stamp = ts.tv_sec * 1000000000LL + (ts.tv_nsec * 1000);
+
     for (type = 0; type < QEMU_CLOCK_MAX; type++) {
         qemu_clock_init(type, notify_cb);
     }
