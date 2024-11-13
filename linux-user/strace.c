@@ -4309,6 +4309,39 @@ print_syscall_ret_waitpid(CPUArchState *cpu_env,
 }
 #endif
 
+#ifdef TARGET_NR_riscv_hwprobe
+
+static void
+print_riscv_hwprobe_pair(struct target_riscv_hwprobe *pair)
+{
+	qemu_log("{key = " TARGET_ABI_FMT_ld "}", pair->key);
+}
+
+static void
+print_riscv_hwprobe(CPUArchState *cpu_env,
+		    const struct syscallname *name,
+		    abi_long arg0, abi_long arg1, abi_long arg2,
+		    abi_long arg3, abi_long arg4, abi_long arg5)
+{
+	print_syscall_prologue(name);
+
+	qemu_log("[");
+
+	ssize_t hwprobe_size = sizeof(struct target_riscv_hwprobe) * arg1;
+	struct target_riscv_hwprobe *hwprobes;
+	hwprobes = lock_user(VERIFY_READ, arg0, hwprobe_size, 1);
+
+	for (abi_ulong i = 0; i < (abi_ulong)arg1; i++)
+		print_riscv_hwprobe_pair(hwprobes + i);
+
+	unlock_user(hwprobes, arg0, hwprobe_size);
+
+	qemu_log("]");
+
+	print_syscall_epilogue(name);
+}
+#endif
+
 /*
  * An array of all of the syscalls we know about
  */

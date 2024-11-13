@@ -2766,4 +2766,9 @@ struct target_open_how_ver0 {
 #define RESOLVE_NO_SYMLINKS     0x04
 #endif
 
+struct target_riscv_hwprobe {
+    abi_llong key;
+    abi_ullong value;
+};
+
 #endif
